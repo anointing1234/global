@@ -24,6 +24,7 @@ ACCOUNT_TYPE_CHOICES = (
     ('savings', 'Savings'),
     ('current', 'Current'),
     ('fixed', 'Fixed Deposit'),
+    ('offshore','Off Shore'),
 )
 
 class AccountManager(BaseUserManager):

@@ -1,0 +1,764 @@
+{% extends 'core/base/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block contents %}
+
+<style>
+
+  .table {
+    width: 100%; /* Ensure the table takes full width */
+    font-size: 12px; /* Smaller font size for better readability on mobile */
+}
+
+.table th, .table td {
+    text-align: left; /* Align text to the left */
+    padding: 8px; /* Add padding for better spacing */
+}
+
+@media (max-width: 768px) {
+    .table th, .table td {
+        font-size: 10px; /* Further reduce font size on smaller screens */
+    }
+}
+  /* Import fonts if needed */
+  .bank-card {
+    background: linear-gradient(135deg, #000000, #001f3f, #000000);
+    border: 1px solid #fff; /* Adjust as needed */
+    font-family: 'Share Tech Mono', monospace;
+  }
+  /* Inherit the font for child elements */
+  .bank-card p,
+  .bank-card h4,
+  .bank-card h5 {
+    font-family: inherit;
+  }
+  /* Outer wrapper centers the scroll area */
+  .outer-scroll {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+  }
+  /* Horizontal scroll container for cards */
+  .scroll-container-horizontal {
+    width: 100%;
+    max-width: 920px;
+    overflow-x: auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch; /* smoother scrolling on mobile */
+  }
+  /* Custom scrollbar styling */
+  .scroll-container-horizontal::-webkit-scrollbar {
+    height: 8px;
+  }
+  .scroll-container-horizontal::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  .scroll-container-horizontal::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  .scroll-container-horizontal::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  /* Flex container to hold cards side by side */
+  .cards-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+  }
+  /* Card container: defaults to full width on small screens */
+  .card-container {
+    flex: 0 0 100%;
+  }
+  /* On larger screens, set card width to 450px so that two cards are visible */
+  @media (min-width: 1000px) {
+    .card-container {
+      flex: 0 0 450px;
+    }
+  }
+  /* Card styling */
+  .account_card {
+    height: 220px;
+    background-color: black;
+    border: 1px solid white;
+    width: 100%;
+  }
+  .card-body {
+    flex: 1;
+  }
+  .numbers {
+    margin-top: 20px;
+  }
+  /* Additional responsiveness for the icon grid */
+  @media (max-width: 768px) {
+    .icon-column {
+      margin-bottom: 30px;
+    }
+  }
+
+  .scroll-container {
+    max-height: 300px; /* Adjust this value as needed */
+    overflow-y: auto;
+    margin-top: 20px; /* Add some space above the scroll container */
+  }
+</style>
+
+<div class="main-panel">
+    <div class="main-header">
+        <div class="main-header-logo"> 
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="{% url 'home' %}" class="logo">
+              <img src="{% static 'images/logo-1.png' %}" alt="navbar brand" class="navbar-brand" height="20" />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+        <!-- Navbar Header -->
+        <nav class="navbar navbar-header navbar-header-dark bg-dark navbar-expand-lg border-bottom">
+          <div class="container-fluid">
+            <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+              <h2 class="text-white fw-bold">Transfer</h2>
+            </nav>
+            <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+              <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none"></li>
+              <li class="nav-item topbar-user dropdown hidden-caret">
+                <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                  <div class="avatar-sm">
+                    <img src="{% static 'images/logo-1.png' %}" alt="..." class="avatar-img rounded-circle" />
+                  </div>
+                  <span class="profile-username">
+                    <span class="op-7 text-light">Hi,</span>
+                    <span class="fw-bold text-light">{{ request.user.username }}</span>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <!-- End Navbar -->
+    </div>
+  <div class="container bg-dark">
+    <div style="background-color:#1A2035;" class="page-inner ">
+     
+      
+      <!-- Horizontal Scrollable Cards Section -->
+      <div style=" background: linear-gradient(135deg, #000000, #001f3f, #000000)" class="outer-scroll rounded">
+        <div class="scroll-container-horizontal">
+          <div class="cards-wrapper">
+            <!-- Card 1 -->
+           
+           <!-- Card 1: Savings -->
+<div class="card-container">
+  <div class="card account_card card-stats card-round">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col col-stats ms-3 ms-sm-0">
+          <div class="numbers">
+            <p class="card-category text-white">
+              Savings 
+              <!-- Toggle icon with unique data attributes -->
+              <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                 data-target="available-balance-savings"
+                 data-key="balanceHidden-savings"
+                 style="cursor:pointer;"></i>
+            </p>
+            <!-- Balance element with unique id and data-balance storing original text -->
+            <h3 class="card-title text-white toggle-balance"
+                id="available-balance-savings"
+                data-hidden="false"
+                data-balance="${{ request.user.account_balance.available_balance|intcomma }}">
+              ${{ request.user.account_balance.available_balance|intcomma }}
+            </h3>
+            <p class="card-category text-gray">Account number</p>
+            <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
+            <div class="row mt-2">
+              <div class="col-6 text-center">
+                <p style="font-size:12px;" class="card-category text-gray">Credits</p>
+                <h5 style="font-size:12px;" class="card-title text-white">{{ total_credits|floatformat:2 }}</h5>
+              </div>
+              <div class="col-6 text-center">
+                <p style="font-size:12px;" class="card-category text-gray">Debits</p>
+                <h5 style="font-size:12px;" class="card-title text-white">{{ total_debits|floatformat:2 }}</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 2: Checking Balance -->
+<div class="card-container">
+  <div class="card account_card card-stats card-round">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col col-stats ms-3 ms-sm-0">
+          <div class="numbers">
+            <p class="card-category text-white">
+              Checking Balance 
+              <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                 data-target="available-balance-checking"
+                 data-key="balanceHidden-checking"
+                 style="cursor:pointer;"></i>
+            </p>
+            <h3 class="card-title text-white toggle-balance"
+                id="available-balance-checking"
+                data-hidden="false"
+                data-balance="${{ request.user.account_balance.checking_balance|intcomma }}">
+              ${{ request.user.account_balance.checking_balance|intcomma }}
+            </h3>
+            <p class="card-category text-gray">Account number</p>
+            <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 3: Credit Card -->
+<div class="card-container">
+  <div class="card account_card card-stats card-round">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col col-stats ms-3 ms-sm-0">
+          <div class="numbers">
+            <p class="card-category text-white">
+              Credit Card 
+              <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                 data-target="available-balance-credit"
+                 data-key="balanceHidden-credit"
+                 style="cursor:pointer;"></i>
+            </p>
+            <h3 class="card-title text-white toggle-balance"
+                id="available-balance-credit"
+                data-hidden="false"
+                data-balance="${{ request.user.account_balance.loan_balance|intcomma }}">
+              ${{ request.user.account_balance.loan_balance|intcomma }}
+            </h3>
+            <p class="card-category text-gray">Account number</p>
+            <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 4: GBP -->
+<div class="card-container">
+  <div class="card account_card card-stats card-round">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col col-stats ms-3 ms-sm-0">
+          <div class="numbers">
+            <p class="card-category text-white">
+              GBP 
+              <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                 data-target="available-balance-gbp"
+                 data-key="balanceHidden-gbp"
+                 style="cursor:pointer;"></i>
+            </p>
+            <h4 class="card-title text-white toggle-balance"
+                id="available-balance-gbp"
+                data-hidden="false"
+                data-balance="£{{ request.user.account_balance.gbp|intcomma }}">
+              £{{ request.user.account_balance.gbp|intcomma }}
+            </h4>
+            <p class="card-category text-gray">Account number</p>
+            <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Card 5: EUR -->
+<div class="card-container">
+  <div class="card account_card card-stats card-round">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col col-stats ms-3 ms-sm-0">
+          <div class="numbers">
+            <p class="card-category text-white">
+              EUR 
+              <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                 data-target="available-balance-eur"
+                 data-key="balanceHidden-eur"
+                 style="cursor:pointer;"></i>
+            </p>
+            <h4 class="card-title text-white toggle-balance"
+                id="available-balance-eur"
+                data-hidden="false"
+                data-balance="€{{ request.user.account_balance.eur|intcomma }}">
+              €{{ request.user.account_balance.eur|intcomma }}
+            </h4>
+            <p class="card-category text-gray">Account number</p>
+            <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+          </div><!-- end .cards-wrapper -->
+        </div><!-- end .scroll-container-horizontal -->
+      </div><!-- end .outer-scroll -->
+    
+
+  
+
+
+
+
+
+
+      <!-- Transfer Form Section -->
+      <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+          <div class="card card-round">
+            <div style="background-color:white;" class="card-header text-dark">
+              <h5 class="mb-0"><i class="fa-solid fa-money-bill-transfer"></i> Make a Transfer</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'create_transfer' %}" id="transferForm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                
+                    <!-- Submit Button -->
+                    <button style="background-color:#1A2035; color:white;" type="submit" class="btn w-100">
+                        Transfer Funds
+                    </button>
+                </form>
+                
+                
+            </div>
+          </div>
+        </div>
+      </div>
+
+     <!-- Recent Transfer History -->
+<div class="row">
+    <div class="col-md-12">
+      <div class="card card-round">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Transfers</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive scroll-container">
+            <table class="table align-items-center mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Reference</th>
+                  <th scope="col">Recipient</th>
+                  <th scope="col" class="text-end">Date & Time</th>
+                  <th scope="col" class="text-end">Amount</th>
+                  <th scope="col" class="text-end">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transfer in transfers %}
+                <tr>
+                  <td>{{ transfer.reference }}</td>
+                  <td>{{ transfer.to_account }}</td>
+                  <td class="text-end">{{ transfer.transaction_date|date:"M d, Y H:i" }}</td>
+                  <td class="text-end">${{ transfer.amount|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% if transfer.status == "completed" %}
+                      <span class="badge bg-success">Completed</span>
+                    {% elif transfer.status == "pending" %}
+                      <span class="badge bg-warning">Pending</span>
+                    {% else %}
+                      <span class="badge bg-danger">Failed</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center">No transfers yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="container-fluid d-flex justify-content-between">
+      <nav class="pull-left">
+        <ul class="nav">
+
+        </ul>
+      </nav>
+      <div class="copyright">
+      
+      </div>
+      <div>
+        copyright@
+        <a target="_blank" class="text-dark" href="">2025globaltrustb.com</a>.
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- jQuery & SweetAlert2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  $(document).ready(function() {
+      // Main form submit handler
+      $("#transferForm").on("submit", function(e) {
+          e.preventDefault();
+          let formData = $(this).serialize();
+          
+          // Get the PIN from the form field (assumes the field's id is "id_pin")
+          let pin = $("#id_pin").val();
+          if (!pin) {
+              Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: "PIN is required."
+              });
+              return;
+          }
+          
+          // Show the validating PIN popup
+          Swal.fire({
+              title: "Validating PIN...",
+              text: "Please wait while we verify your transaction PIN.",
+              allowOutsideClick: false,
+              didOpen: () => { Swal.showLoading(); }
+          });
+
+          // AJAX call to validate PIN without delay
+          $.ajax({
+              url: "{% url 'validate_pin' %}",
+              method: "POST",
+              data: {
+                  csrfmiddlewaretoken: "{{ csrf_token }}",
+                  pin: pin
+              },
+              success: function(response) {
+                  Swal.close();
+                  if (response.success) {
+                      // If the PIN is valid, proceed with sending the transfer code.
+                      Swal.fire({
+                          title: "Processing...",
+                          text: "Please wait...",
+                          allowOutsideClick: false,
+                          didOpen: () => { Swal.showLoading(); }
+                      });
+                      
+                      $.ajax({
+                          url: "{% url 'send_transfer_code' %}",
+                          method: "POST",
+                          data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+                          success: function(response) {
+                              if (response.success) {
+                                  Swal.close();
+                                  // Ask for TAC code without delay
+                                  askForCode("Enter TAC Code", "tac_code", function(tacCode) {
+                                      validateCode(tacCode, "tac_code", function(isValid) {
+                                          if (isValid) {
+                                              // Ask for Tax code after a delay
+                                              Swal.fire({
+                                                  title: "Please wait...",
+                                                  text: "validating code",
+                                                  allowOutsideClick: false,
+                                                  didOpen: () => { Swal.showLoading(); }
+                                              });
+                                              setTimeout(function() {
+                                                  Swal.close(); // Close the waiting popup
+                                                  askForCode("Enter Tax Code", "tax_code", function(taxCode) {
+                                                      validateCode(taxCode, "tax_code", function(isValid) {
+                                                          if (isValid) {
+                                                              // Ask for IMF code after a delay
+                                                              Swal.fire({
+                                                                  title: "Please wait...",
+                                                                  text: "validating code",
+                                                                  allowOutsideClick: false,
+                                                                  didOpen: () => { Swal.showLoading(); }
+                                                              });
+                                                              setTimeout(function() {
+                                                                  Swal.close(); // Close the waiting popup
+                                                                  askForCode("Enter IMF Code", "imf_code", function(imfCode) {
+                                                                      validateCode(imfCode, "imf_code", function(isValid) {
+                                                                          if (isValid) {
+                                                                              processTransfer(formData, tacCode, taxCode, imfCode);
+                                                                          }
+                                                                      });
+                                                                  });
+                                                              }, 12000); // 12000 milliseconds = 4 minutes
+                                                          }
+                                                      });
+                                                  });
+                                              }, 12000); // 12000 milliseconds = 4 minutes
+                                          }
+                                      });
+                                  });
+                              } else {
+                                  Swal.fire({
+                                      icon: "error",
+                                      title: "Error",
+                                      text: "Failed to send transfer code. Please try again."
+                                  });
+                              }
+                          },
+                          error: function(xhr) {
+                              let errorMessage = "Could not send transfer code. Try again later.";
+                              if (xhr.responseJSON && xhr.responseJSON.message) {
+                                  errorMessage = xhr.responseJSON.message;
+                              }
+                              Swal.fire({ icon: "error", title: "Error", text: errorMessage });
+                          }
+                      });
+                  } else {
+                      Swal.fire({
+                          icon: "error",
+                          title: "Invalid PIN",
+                          text: response.message
+                      });
+                  }
+              },
+              error: function(xhr) {
+                  Swal.close();
+                  let errorMessage = "Error validating PIN.";
+                  if (xhr.responseJSON && xhr.responseJSON.message) {
+                      errorMessage = xhr.responseJSON.message;
+                  }
+                  Swal.fire({ icon: "error", title: "Error", text: errorMessage });
+              }
+          });
+      });
+      
+      function askForCode(title, inputName, callback) {
+          Swal.fire({
+              title: title,
+              input: "text",
+              inputPlaceholder: "Enter the code",
+              footer: "<a href='mailto:info@globaltrustb.com'>Don't have a code? Contact admin at info@globaltrustb.com.com</a>",
+              showCancelButton: true,
+              confirmButtonText: "Submit",
+              preConfirm: (code) => {
+                  if (!code) {
+                      Swal.showValidationMessage("Code is required!");
+                      return false;
+                  }
+                  return code;
+              }
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  callback(result.value);
+              }
+          });
+      }
+      
+      function validateCode(code, codeType, callback) {
+          Swal.fire({
+              title: "Validating Code...",
+              text: "Please wait while we verify your code.",
+              allowOutsideClick: false,
+              didOpen: () => { Swal.showLoading(); }
+          });
+          
+          $.ajax({
+              url: "{% url 'validate_code' %}",
+              method: "POST",
+              data: {
+                  csrfmiddlewaretoken: "{{ csrf_token }}",
+                  code: code,
+                  code_type: codeType
+              },
+              success: function(response) {
+                  Swal.close();
+                  if (response.success) {
+                      callback(true);
+                  } else {
+                      Swal.fire({
+                          icon: "error",
+                          title: "Invalid Code",
+                          text: response.message
+                      });
+                      callback(false);
+                  }
+              },
+              error: function(xhr) {
+                  Swal.close();
+                  let errorMessage = "Error validating code.";
+                  if (xhr.responseJSON && xhr.responseJSON.message) {
+                      errorMessage = xhr.responseJSON.message;
+                  }
+                  Swal.fire({ icon: "error", title: "Error", text: errorMessage });
+                  callback(false);
+              }
+          });
+      }
+      
+      function processTransfer(formData, tacCode, taxCode, imfCode) {
+          Swal.fire({
+              title: "Processing Transfer...",
+              text: "Please wait while we complete your transaction.",
+              allowOutsideClick: false,
+              didOpen: () => { Swal.showLoading(); }
+          });
+          
+          const dataToSend = formData + "&tac_code=" + encodeURIComponent(tacCode) +
+                             "&tax_code=" + encodeURIComponent(taxCode) +
+                             "&imf_code=" + encodeURIComponent(imfCode);
+          
+          $.ajax({
+              url: "{% url 'create_transfer' %}",
+              method: "POST",
+              data: dataToSend,
+              success: function(response) {
+                  Swal.fire({
+                      icon: "success",
+                      title: "Transfer Successful",
+                      text: response.message
+                  }).then(() => {
+                      location.reload();
+                      window.location.href = response.redirect_url;
+                  });
+              },
+              error: function(xhr) {
+                  let errorMessage = "Transfer failed. Please check your codes and balance.";
+                  if (xhr.responseJSON && xhr.responseJSON.message) {
+                      errorMessage = xhr.responseJSON.message;
+                  }
+                  Swal.fire({ icon: "error", title: "Transfer Failed", text: errorMessage });
+              }
+          });
+      }
+  });
+</script>
+
+
+<script>
+  var beneficiaryData = {{ beneficiary_data_json|safe }};
+  
+  $(document).ready(function() {
+    // Function to populate and disable manual fields when a beneficiary is selected.
+    function fillBeneficiaryFields() {
+      var selectedId = $('#id_beneficiary').val();
+      if (selectedId) {
+        var data = beneficiaryData[selectedId];
+        // Fill in the manual fields with the beneficiary information.
+        $('input[name="new_full_name"]').val(data.full_name).prop('disabled', true);
+        $('input[name="new_account_number"]').val(data.account_number).prop('disabled', true);
+        $('input[name="new_bank_name"]').val(data.bank_name).prop('disabled', true);
+        $('input[name="new_identifier_code"]').val(data.swift_code).prop('disabled', true);
+        $('input[name="new_routing_transit_number"]').val(data.routing_transit_number).prop('disabled', true);
+        $('input[name="new_bank_address"]').val(data.bank_address).prop('disabled', true);
+      } else {
+        // No beneficiary selected: clear the manual fields and enable them for manual entry.
+        $('input[name="new_full_name"]').val('').prop('disabled', false);
+        $('input[name="new_account_number"]').val('').prop('disabled', false);
+        $('input[name="new_bank_name"]').val('').prop('disabled', false);
+        $('input[name="new_identifier_code"]').val('').prop('disabled', false);
+        $('input[name="new_routing_transit_number"]').val('').prop('disabled', false);
+        $('input[name="new_bank_address"]').val('').prop('disabled', false);
+      }
+    }
+    
+    // Run on page load.
+    fillBeneficiaryFields();
+    
+    // Bind the change event on the beneficiary dropdown.
+    $('#id_beneficiary').on('change', function() {
+      fillBeneficiaryFields();
+    });
+  });
+</script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Select all toggle icons
+    const toggleIcons = document.querySelectorAll(".toggle-balance-icon");
+  
+    // Function to update the balance element UI
+    function updateUI(element, isHidden) {
+      // Retrieve the original balance text from data attribute.
+      const originalBalance = element.getAttribute("data-balance");
+      if (isHidden) {
+        element.textContent = "*******";
+      } else {
+        element.textContent = originalBalance;
+      }
+      element.setAttribute("data-hidden", isHidden ? "true" : "false");
+    }
+  
+    // Process each toggle icon independently
+    toggleIcons.forEach(function(icon) {
+      // Get the target balance element's id and the storage key from the icon's data attributes.
+      const targetId = icon.getAttribute("data-target");
+      const storageKey = icon.getAttribute("data-key");
+      const balanceElement = document.getElementById(targetId);
+  
+      // On page load, check localStorage for this balance's saved state.
+      let storedState = localStorage.getItem(storageKey);
+      let isHidden = storedState === "true";  // stored as string "true" or "false"
+      if (balanceElement) {
+        updateUI(balanceElement, isHidden);
+      }
+  
+      // Set the initial icon classes accordingly.
+      if (isHidden) {
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+  
+      // Add a click event listener for toggling.
+      icon.addEventListener("click", function() {
+        // Toggle the state for this balance element.
+        const currentlyHidden = balanceElement.getAttribute("data-hidden") === "true";
+        const newHidden = !currentlyHidden;
+        updateUI(balanceElement, newHidden);
+        
+        // Update the icon classes.
+        if (newHidden) {
+          icon.classList.remove("fa-eye");
+          icon.classList.add("fa-eye-slash");
+        } else {
+          icon.classList.remove("fa-eye-slash");
+          icon.classList.add("fa-eye");
+        }
+        
+        // Save the new state to localStorage for this balance.
+        localStorage.setItem(storageKey, newHidden);
+      });
+    });
+  });
+  </script>
+  
+
+
+
+  {% endblock contents %}

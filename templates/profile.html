@@ -1,0 +1,379 @@
+{% extends 'core/base/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block contents %}
+<style>
+  .row.align-items-stretch {
+    display: flex;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+  .card-body {
+    flex: 1; /* This allows the card body to take up the remaining space */
+  }
+  /* Make the container fill the entire viewport */
+  .full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+</style>
+
+<div class="main-panel">
+  <div class="main-header">
+    <div class="main-header-logo">
+      <!-- Logo Header -->
+      <div class="logo-header" data-background-color="dark">
+        <a href="index.html" class="logo">
+          <img src="{% static 'images/logo-1.png' %}" alt="navbar brand" class="navbar-brand" height="20" />
+        </a>
+        <div class="nav-toggle">
+          <button class="btn btn-toggle toggle-sidebar">
+            <i class="gg-menu-right"></i>
+          </button>
+          <button class="btn btn-toggle sidenav-toggler">
+            <i class="gg-menu-left"></i>
+          </button>
+        </div>
+        <button class="topbar-toggler more">
+          <i class="gg-more-vertical-alt"></i>
+        </button>
+      </div>
+      <!-- End Logo Header -->
+    </div>
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-header navbar-header-dark bg-dark navbar-expand-lg border-bottom">
+      <div class="container-fluid">
+        <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+          <h2 class="text-white fw-bold">Profile</h2>
+        </nav>
+        
+        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+          <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none"></li>
+          <li class="nav-item topbar-user dropdown hidden-caret">
+            <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+              <div class="avatar-sm">
+                <img src="{% static 'images/favicon.png' %}" alt="..." class="avatar-img rounded-circle" />
+              </div>
+              <span class="profile-username">
+                <span class="op-7 text-light">Hi,</span>
+                <span class="fw-bold text-light">{{ request.user.username }}</span>
+              </span>
+            </a>
+           
+
+
+            
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+  </div>
+
+  
+  <div class="container bg-dark">
+    <div class="page-inner">
+      <div class="row mb-5 pb-5 p-0">
+        <div class="row mx-3">
+          <!-- Fixed typo: changed "containe-fluid" to "container-fluid" -->
+        
+
+          <div class="container-fluid mt-5">
+            <div class="row me-3">
+              <div class="col-md-4">
+                <!-- Profile Card with Picture -->
+                <div class="card mb-4">
+                  <div class="card-header text-center">
+                    <img style="width: 80px; height: 80px; object-fit: cover;" src="{% static 'images/logo-1.png' %}" alt="..." class="avatar-img rounded-circle" />
+                    <h5 class="text-center">{{ request.user.first_name }} {{ request.user.last_name }}</h5>
+                 </div>
+            
+          
+                  <div class="card-body">
+                    <div class="row mb-2">
+                      <p class="text-dark mb-0 text-center">Savings Balance</p>
+                      <h5 class="text-dark text-center fw-bold">
+                        ${{ request.user.account_balance.available_balance|intcomma }}
+                      </h5>
+                    </div>
+                    <div class="row mb-2">
+                      <p class="text-dark mb-0 text-center">Checking Balance</p>
+                      <h5 class="text-dark fw-bold text-center">
+                        ${{ request.user.account_balance.checking_balance|intcomma }}
+                      </h5>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="col-md-8">
+                <div class="card">
+                  <div class="card-header">
+                    <a href="{% url 'edit_profile' %}" class="card-title mb-0"><i class="fa-solid fa-pen-to-square"></i> EDIT PROFILE</a>
+                  </div>
+                  <div class="card-body">
+                    
+                    <div class="row mb-3">
+                      <div class="col-sm-4 text-muted">Email</div>
+                      <div class="col-sm-8">{{ request.user.email }}</div>
+                    </div>
+                    <hr />
+                    <div class="row mb-3">
+                      <div class="col-sm-4 text-muted">Country</div>
+                      <div class="col-sm-8">
+                        {% if request.user.country  %}
+                            {{ request.user.country  }}
+                        {% else %}
+                             Unavailable
+                        {% endif %}
+                    </div>
+                    </div>
+                    <hr />
+
+                    <div class="row mb-3">
+                      <div class="col-sm-4 text-muted">City</div>
+                      <div class="col-sm-8">  <div class="col-sm-8">
+                        {% if request.user.city  %}
+                            {{ request.user.city  }}
+                        {% else %}
+                             Unavailable
+                        {% endif %}
+                     </div>
+                     </div>
+                    </div>
+
+                      <hr>
+                    <div class="row mb-3">
+                      <div class="col-sm-4 text-muted">Gender</div>
+                      <div class="col-sm-8">  <div class="col-sm-8">
+                        {% if request.user.gender   %}
+                            {{ request.user.gender   }}
+                        {% else %}
+                             Unavailable
+                        {% endif %}
+                     </div>
+                     </div>
+                    </div>
+
+       
+              
+                 
+
+
+                    <div class="row mb-3">
+                      <div class="col-sm-4 text-muted">Pin     <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                        data-target="available-balance-gbp"
+                        data-key="balanceHidden-gbp"
+                        style="cursor:pointer;"></i></div>
+                      <div class="col-sm-8">  <div class="col-sm-8" id="available-balance-gbp"
+                        data-hidden="false"
+                        data-balance="{{ request.user.pin }}">
+                        {% if request.user.pin %}
+                            {{ request.user.pin }}
+                        {% else %}
+                             Unavailable
+                        {% endif %}
+                     </div>
+                     </div>
+                    </div>
+                   
+
+
+
+                  </div>
+                </div>
+              </div>
+  
+            </div>
+          </div>
+        </div> <!-- end row mx-3 -->
+      </div> <!-- end row mb-5 pb-5 p-0 -->
+    </div> <!-- end page-inner -->
+  </div> <!-- end container -->
+  
+
+
+
+
+
+  <footer class="footer">
+    <div class="container-fluid d-flex justify-content-between">
+      <nav class="pull-left">
+        <ul class="nav">
+        </ul>
+      </nav>
+      <div class="copyright"></div>
+      <div>
+        copyright@
+        <a target="_blank" class="text-dark" href="">2025globaltrustb.com</a>.
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- Modal for Adding Full Name -->
+<div class="modal fade" id="fullNameModal" tabindex="-1" aria-labelledby="fullNameModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"> <!-- Added modal-dialog-centered class -->
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="fullNameModalLabel">Add Full Name</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form id="fullNameForm">
+                  <div class="mb-3">
+                      <label for="fullname" class="form-label">Full Name</label>
+                      <input type="text" class="form-control" id="fullname" name="fullname" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+   
+
+
+<script>
+  function showFullNameInput() {
+      // Show the modal
+      var myModal = new bootstrap.Modal(document.getElementById('fullNameModal'));
+      myModal.show();
+  }
+
+  document.getElementById('fullNameForm').onsubmit = function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      // Show loading indicator
+      Swal.fire({
+          title: 'Submitting...',
+          html: 'Please wait while we process your request.',
+          allowOutsideClick: false,
+          onBeforeOpen: () => {
+              Swal.showLoading();
+          }
+      });
+
+      // Use AJAX to submit the form
+      const formData = new FormData(this);
+      fetch("{% url 'update_fullname' %}", {  // Ensure this URL is correct
+          method: 'POST',
+          body: formData,
+          headers: {
+              'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token for security
+          }
+      })
+      .then(response => {
+          if (!response.ok) {
+              return response.json().then(data => {
+                  const errorMessages = Object.values(data.error).flat().map(err => err.message).join(', ');
+                  throw new Error(errorMessages);
+              });
+          }
+          return response.json();
+      })
+      .then(data => {
+          // Handle success message
+          Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: data.success,
+              confirmButtonText: 'OK'
+          }).then(() => {
+              // Reload the page to reflect changes
+              window.location.reload();
+          });
+      })
+      .catch(error => {
+          // Handle error message
+          Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+              confirmButtonText: 'OK'
+          });
+      });
+  };
+</script>
+
+
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Select all toggle icons
+    const toggleIcons = document.querySelectorAll(".toggle-balance-icon");
+  
+    // Function to update the balance element UI
+    function updateUI(element, isHidden) {
+      // Retrieve the original balance text from data attribute.
+      const originalBalance = element.getAttribute("data-balance");
+      if (isHidden) {
+        element.textContent = "*******";
+      } else {
+        element.textContent = originalBalance;
+      }
+      element.setAttribute("data-hidden", isHidden ? "true" : "false");
+    }
+  
+    // Process each toggle icon independently
+    toggleIcons.forEach(function(icon) {
+      // Get the target balance element's id and the storage key from the icon's data attributes.
+      const targetId = icon.getAttribute("data-target");
+      const storageKey = icon.getAttribute("data-key");
+      const balanceElement = document.getElementById(targetId);
+  
+      // On page load, check localStorage for this balance's saved state.
+      let storedState = localStorage.getItem(storageKey);
+      let isHidden = storedState === "true";  // stored as string "true" or "false"
+      if (balanceElement) {
+        updateUI(balanceElement, isHidden);
+      }
+  
+      // Set the initial icon classes accordingly.
+      if (isHidden) {
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+  
+      // Add a click event listener for toggling.
+      icon.addEventListener("click", function() {
+        // Toggle the state for this balance element.
+        const currentlyHidden = balanceElement.getAttribute("data-hidden") === "true";
+        const newHidden = !currentlyHidden;
+        updateUI(balanceElement, newHidden);
+        
+        // Update the icon classes.
+        if (newHidden) {
+          icon.classList.remove("fa-eye");
+          icon.classList.add("fa-eye-slash");
+        } else {
+          icon.classList.remove("fa-eye-slash");
+          icon.classList.add("fa-eye");
+        }
+        
+        // Save the new state to localStorage for this balance.
+        localStorage.setItem(storageKey, newHidden);
+      });
+    });
+  });
+  </script>
+  
+
+{% endblock contents %}

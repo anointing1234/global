@@ -1,0 +1,429 @@
+{% extends 'core/base/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block contents %}
+
+<style>
+  .row.align-items-stretch {
+    display: flex;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+  }
+  .card-body {
+    flex: 1; /* This allows the card body to take up the remaining space */
+  }
+  /* Make the container fill the entire viewport */
+  .full-screen {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .scroll-container {
+    max-height: 300px; /* Adjust this value as needed */
+    overflow-y: auto;
+  }
+    
+ 
+</style>
+
+<div class="main-panel">
+  <div class="main-header">
+    <div class="main-header-logo"> 
+      <!-- Logo Header -->
+      <div class="logo-header" data-background-color="dark">
+        <a href="index.html" class="logo">
+          <img src="{% static 'images/logo-1.png' %}" alt="navbar brand" class="navbar-brand" height="20" />
+        </a>
+        <div class="nav-toggle">
+          <button class="btn btn-toggle toggle-sidebar">
+            <i class="gg-menu-right"></i>
+          </button>
+          <button class="btn btn-toggle sidenav-toggler">
+            <i class="gg-menu-left"></i>
+          </button>
+        </div>
+        <button class="topbar-toggler more">
+          <i class="gg-more-vertical-alt"></i>
+        </button>
+      </div>
+      <!-- End Logo Header -->
+    </div>
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-header navbar-header-dark bg-dark navbar-expand-lg border-bottom">
+      <div class="container-fluid">
+        <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+          <h2 class="text-white fw-bold">Deposit</h2>
+        </nav>
+        <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+          <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none"></li>
+          <li class="nav-item topbar-user dropdown hidden-caret">
+            <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+              <div class="avatar-sm">
+                <img src="{% static 'images/logo-1.png' %}" alt="..." class="avatar-img rounded-circle" />
+              </div>
+              <span class="profile-username">
+                <span class="op-7 text-light">Hi,</span>
+                <span class="fw-bold text-light">{{ request.user.username }}</span>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+</div>
+
+  <div class="container">
+    <div class="page-inner">
+      <!-- Dashboard Cards -->
+      <div class="row">
+     
+        <!-- Add other cards if needed -->
+        <div class="col-sm-6 col-md-3 col-lg-4">
+          <div class="card card-stats card-round">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-icon">
+                  <div class="icon-big text-center icon-primary bubble-shadow-smaller">
+                    <i class="fa-sharp fa-solid fa-piggy-bank"></i>
+                  </div>
+                </div>
+                <div class="col col-stats ms-3 ms-sm-0">
+                  <div class="numbers">
+                    <p class="card-category">USD       <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                      data-target="available-balance-savings"
+                      data-key="balanceHidden-savings"
+                      style="cursor:pointer;"></i></p>
+                    <h4 class="card-title toggle-balance" id="available-balance-savings"
+                    data-hidden="false"
+                    data-balance="${{ request.user.account_balance.available_balance|intcomma }}">${{ request.user.account_balance.available_balance|intcomma }}</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-sm-6 col-md-3 col-lg-4">
+          <div class="card card-stats card-round">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-icon">
+                  <div class="icon-big text-center icon-info bubble-shadow-smaller">
+                    <i class="fa-solid fa-landmark"></i>
+                  </div>
+                </div>
+                <div class="col col-stats ms-3 ms-sm-0">
+                  <div class="numbers">
+                    <p class="card-category toggle-balance">GBP  <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                      data-target="available-balance-gbp"
+                      data-key="balanceHidden-gbp"
+                      style="cursor:pointer;"></i></p>
+                    <h4 class="card-title" id="available-balance-gbp"
+                    data-hidden="false"
+                    data-balance="£{{ request.user.account_balance.gbp|intcomma }}">£{{ request.user.account_balance.gbp|intcomma }}</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-sm-6 col-md-3 col-lg-4">
+          <div class="card card-stats card-round">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-icon">
+                  <div class="icon-big text-center icon-success bubble-shadow-smaller">
+                    <i class="fa-sharp fa-solid fa-money-bill-transfer"></i>
+                  </div>
+                </div>
+                <div class="col col-stats ms-3 ms-sm-0">
+                  <div class="numbers">
+                    <p class="card-category toggle-balance">EUR     <i class="fa-solid fa-eye fa-lg toggle-balance-icon"
+                      data-target="available-balance-eur"
+                      data-key="balanceHidden-eur"
+                      style="cursor:pointer;"></i></p>
+                    <h4 class="card-title" id="available-balance-eur"
+                    data-hidden="false"
+                    data-balance="€{{ request.user.account_balance.eur|intcomma }}">€{{ request.user.account_balance.eur|intcomma }}</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+      </div>
+
+      <!-- Deposit Form Section -->
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card card-round">
+            <div style="background-color:#1A2035;" class="card-header text-white">
+              <h5 class="mb-0"><i class="fa-regular fa-credit-card"></i> Fund Account</h5>
+            </div>
+            <div class="card-body">
+              <!-- We do not submit the form normally; all handled via AJAX -->
+              <form id="depositForm">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label for="amount" class="form-label">Deposit Amount</label>
+                  <input type="number" step="0.01" name="amount" id="amount" class="form-control" placeholder="Enter amount" required>
+                </div>
+                <div class="mb-3">
+                  <label for="network" class="form-label">Select Network</label>
+                  <select name="network" id="network" class="form-select" required>
+                    <option value="" disabled selected>Choose a network</option>
+                    <option value="Ethereum">Ethereum</option>
+                    <option value="Bitcoin">Bitcoin</option>
+                    <option value="USDT">USDT</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="network" class="form-label">Select Account</label>
+                  <select name="network" id="account" class="form-select" required>
+                    <option value="" disabled selected>Choose an Account</option>
+                    <option value="Savings_Account">Savings Account</option>
+                    <option value="Checking_Account">Checking Account</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="rate" class="form-label">Exchange Rate</label>
+                  <input type="text" name="rate" id="rate" class="form-control" value="1.00" readonly>
+                </div>
+                <!-- Button with ID for AJAX click handler -->
+                <button
+                  style="background-color:#1A2035; color:white;"
+                  type="button"
+                  class="btn w-100"
+                  id="initiateDeposit"
+                >
+                  Deposit
+                </button>
+              </form>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+<!-- Recent Deposit History (Optional) -->
+<div class="row">
+    <div class="col-md-12">
+      <div class="card card-round">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Deposits</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive scroll-container">
+            <table class="table align-items-center mb-0">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Reference</th>
+                  <th scope="col" class="text-end">Date & Time</th>
+                  <th scope="col" class="text-end">Amount</th>
+                  <th scope="col" class="text-end">Network</th>
+                  <th scope="col" class="text-end">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for deposit in deposits %}
+                <tr>
+                  <td>{{ deposit.TNX }}</td>
+                  <td class="text-end">{{ deposit.date|date:"M d, Y H:i" }}</td>
+                  <td class="text-end">${{ deposit.amount|floatformat:2 }}</td>
+                  <td class="text-end">{{ deposit.network }}</td>
+                  <td class="text-end">
+                    {% if deposit.status == "completed" %}
+                      <span class="badge bg-success">Completed</span>
+                    {% elif deposit.status == "pending" %}
+                      <span class="badge bg-warning">Pending</span>
+                    {% else %}
+                      <span class="badge bg-danger">Failed</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center">No deposits yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+
+
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container-fluid d-flex justify-content-between">
+      <nav class="pull-left">
+        <ul class="nav">
+
+        </ul>
+      </nav>
+      <div class="copyright">
+      
+      </div>
+      <div>
+        copyright@
+        <a target="_blank" class="text-dark" href="">2025globaltrustb.com</a>.
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- jQuery & SweetAlert2 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  $(document).ready(function() {
+    $("#initiateDeposit").on("click", function(e) {
+      e.preventDefault();
+  
+      // Get selected network, account, and deposit amount
+      let selectedNetwork = $("#network").val();
+      let selectedAccount = $("#account").val();
+      let depositAmount = $("#amount").val();
+  
+      // Basic validation: ensure all fields are provided
+      if (!selectedNetwork || !selectedAccount || !depositAmount) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please select a network, an account, and enter an amount."
+        });
+        return;
+      }
+  
+      // Show loading spinner while creating the deposit
+      Swal.fire({
+        title: "Processing Deposit",
+        text: "Please wait...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      // AJAX POST request to create deposit & transaction, including the account field
+      $.ajax({
+        url: "{% url 'create_deposit' %}",
+        method: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+          network: selectedNetwork,
+          amount: depositAmount,
+          account: selectedAccount   // New field included here
+        },
+        success: function(finalResponse) {
+          Swal.close();
+          Swal.fire({
+            icon: "success",
+            title: "Deposit Successful",
+            text: finalResponse.message || "Your deposit has been recorded. Your account will be credited shortly."
+          }).then(() => {
+            location.reload();
+          });
+        },
+        error: function() {
+          Swal.close();
+          Swal.fire({
+            icon: "error",
+            title: "Deposit Error",
+            text: "There was an issue processing your deposit. Please try again."
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Select all toggle icons
+    const toggleIcons = document.querySelectorAll(".toggle-balance-icon");
+  
+    // Function to update the balance element UI
+    function updateUI(element, isHidden) {
+      // Retrieve the original balance text from data attribute.
+      const originalBalance = element.getAttribute("data-balance");
+      if (isHidden) {
+        element.textContent = "*******";
+      } else {
+        element.textContent = originalBalance;
+      }
+      element.setAttribute("data-hidden", isHidden ? "true" : "false");
+    }
+  
+    // Process each toggle icon independently
+    toggleIcons.forEach(function(icon) {
+      // Get the target balance element's id and the storage key from the icon's data attributes.
+      const targetId = icon.getAttribute("data-target");
+      const storageKey = icon.getAttribute("data-key");
+      const balanceElement = document.getElementById(targetId);
+  
+      // On page load, check localStorage for this balance's saved state.
+      let storedState = localStorage.getItem(storageKey);
+      let isHidden = storedState === "true";  // stored as string "true" or "false"
+      if (balanceElement) {
+        updateUI(balanceElement, isHidden);
+      }
+  
+      // Set the initial icon classes accordingly.
+      if (isHidden) {
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+  
+      // Add a click event listener for toggling.
+      icon.addEventListener("click", function() {
+        // Toggle the state for this balance element.
+        const currentlyHidden = balanceElement.getAttribute("data-hidden") === "true";
+        const newHidden = !currentlyHidden;
+        updateUI(balanceElement, newHidden);
+        
+        // Update the icon classes.
+        if (newHidden) {
+          icon.classList.remove("fa-eye");
+          icon.classList.add("fa-eye-slash");
+        } else {
+          icon.classList.remove("fa-eye-slash");
+          icon.classList.add("fa-eye");
+        }
+        
+        // Save the new state to localStorage for this balance.
+        localStorage.setItem(storageKey, newHidden);
+      });
+    });
+  });
+  </script>
+  
+{% endblock contents %}

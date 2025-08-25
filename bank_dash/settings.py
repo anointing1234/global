@@ -38,8 +38,8 @@ DEBUG = False
 
 
 # ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["https://globaltrustb.com"]
-ALLOWED_HOSTS = ["globaltrustb.com"]
+CSRF_TRUSTED_ORIGINS = ["https://globaltrustbc.com"]
+ALLOWED_HOSTS = ["globaltrustbc.com"]
 
 
 

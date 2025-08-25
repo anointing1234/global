@@ -47,14 +47,14 @@ def generate_unique_account_number():
 
 
 
-
+# forms.py or admin.py (depending on where you keep it)
 class AccountCreationForm(forms.ModelForm):
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
     password2 = forms.CharField(label=_("Confirm Password"), widget=forms.PasswordInput)
 
     class Meta:
         model = Account
-        fields = ('email', 'first_name', 'last_name', 'phone_number', 'account_type')
+        fields = ('email', 'first_name', 'last_name', 'phone_number', 'account_type', 'status')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -67,49 +67,77 @@ class AccountCreationForm(forms.ModelForm):
         account = super().save(commit=False)
         account.set_password(self.cleaned_data["password1"])
         if not account.account_number:
-            account.account_number = generate_unique_account_number()  # Hash the password
+            account.account_number = generate_unique_account_number()
         if commit:
             account.save()
         return account
 
 
-class AccountAdmin(BaseUserAdmin,UnfoldModelAdmin):
+class AccountAdmin(BaseUserAdmin, UnfoldModelAdmin):
     ordering = ('email',)
-    list_display = ('account_id', 'pin','email', 'first_name', 'last_name', 'phone_number', 'account_type', 'is_staff', 'is_active')
-    list_filter = ('is_staff', 'is_active', 'account_type','account_id')
-    readonly_fields = ('date_joined', 'last_login')  # Mark non-editable fields as read-only
+    list_display = (
+        'account_id', 'pin', 'email', 'first_name', 'last_name',
+        'phone_number', 'account_type', 'status', 'is_staff'
+    )
+    list_filter = ('is_staff', 'status', 'account_type', 'account_id')
+    readonly_fields = ('date_joined', 'last_login')
+
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('first_name', 'last_name', 'phone_number', 'account_type','account_number','country','city','gender')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Personal info', {
+            'fields': (
+                'first_name', 'last_name', 'phone_number', 'account_type',
+                'account_number', 'country', 'city', 'gender'
+            )
+        }),
+        ('Account Status', {'fields': ('status',)}),
+        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'first_name', 'last_name', 'phone_number', 'account_type', 'password1', 'password2'),
+            'fields': (
+                'email', 'first_name', 'last_name', 'phone_number',
+                'account_type', 'status', 'password1', 'password2'
+            ),
         }),
     )
+
     search_fields = ('email', 'first_name', 'last_name')
     filter_horizontal = ('groups', 'user_permissions',)
 
     # Use the custom form for adding new users
     add_form = AccountCreationForm
 
+    # Custom admin actions for status
+    actions = ['make_active', 'make_disabled', 'make_blocked']
+
+    def make_active(self, request, queryset):
+        queryset.update(status='active')
+        self.message_user(request, "Selected accounts marked as Active")
+    make_active.short_description = "Mark selected users as Active"
+
+    def make_disabled(self, request, queryset):
+        queryset.update(status='disabled')
+        self.message_user(request, "Selected accounts marked as Disabled")
+    make_disabled.short_description = "Mark selected users as Disabled"
+
+    def make_blocked(self, request, queryset):
+        queryset.update(status='blocked')
+        self.message_user(request, "Selected accounts marked as Blocked")
+    make_blocked.short_description = "Mark selected users as Blocked"
+
     def changelist_view(self, request, extra_context=None):
-        # Get the total number of users
         User = get_user_model()
         total_users = User.objects.count()
-
-        # Add a message to the admin interface
         messages.info(request, f'Total number of users: {total_users}')
-
         return super().changelist_view(request, extra_context=extra_context)
 
-    add_form = AccountCreationForm
+
 # Register the AccountAdmin
 admin.site.register(Account, AccountAdmin)
-
 
 
 

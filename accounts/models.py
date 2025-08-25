@@ -61,12 +61,18 @@ class AccountManager(BaseUserManager):
         return self.create_user(email=email, password=password, **extra_fields)
 
 
-
-# Define choices for the gender field
+# Define choices for gender
 GENDER_CHOICES = (
     ('M', 'Male'),
     ('F', 'Female'),
     ('O', 'Other'),
+)
+
+# Define choices for account status
+ACCOUNT_STATUS_CHOICES = (
+    ('active', 'Active'),
+    ('disabled', 'Disabled'),
+    ('blocked', 'Blocked'),
 )
 
 class Account(AbstractBaseUser, PermissionsMixin):
@@ -74,23 +80,23 @@ class Account(AbstractBaseUser, PermissionsMixin):
     A robust model representing a bank account similar to a standard American bank account.
     """
     account_id = models.CharField(max_length=6, unique=True, blank=True, null=True)
-    
+
     email = models.EmailField(verbose_name="Email", max_length=100, unique=True)
     username = models.CharField(max_length=100, blank=True)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     phone_number = models.CharField(max_length=15, blank=True)
-    
+
     # Standard American account fields
     country = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
-    
+
     # Auto-generated and unique code fields
     cot_code = models.CharField(max_length=6, blank=True, null=True, unique=True)
     tax_code = models.CharField(max_length=6, blank=True, null=True, unique=True)
     imf_code = models.CharField(max_length=6, blank=True, null=True, unique=True)
-    
+
     account_type = models.CharField(
         max_length=20,
         choices=ACCOUNT_TYPE_CHOICES,
@@ -105,14 +111,21 @@ class Account(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(verbose_name="Date Joined", auto_now_add=True)
     last_login = models.DateTimeField(verbose_name="Last Login", auto_now=True)
-    
-    is_active = models.BooleanField(default=True)
+
+    # Replacing is_active with status field
+    status = models.CharField(
+        max_length=10,
+        choices=ACCOUNT_STATUS_CHOICES,
+        default='active',
+        help_text="Account status: Active, Disabled, or Blocked"
+    )
+
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
     # New field: PIN (auto-generated for new registrations)
     pin = models.CharField(max_length=4, blank=True, null=True)
-    
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
@@ -121,16 +134,20 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+    # Permissions
     def has_perm(self, perm, obj=None):
         return self.is_superuser
 
     def has_module_perms(self, app_label):
         return self.is_superuser or self.is_staff
 
+    # Override is_active property -> controls login
+    @property
+    def is_active(self):
+        return self.status == 'active'
+
+    # Username generator
     def generate_username(self):
-        """
-        Generate a unique username using the part of the email before the '@'.
-        """
         base_username = self.email.split('@')[0]
         username = base_username
         counter = 1
@@ -139,45 +156,37 @@ class Account(AbstractBaseUser, PermissionsMixin):
             counter += 1
         return username
 
+    # Random number generator
     def generate_random_number(self, length=6):
-        """
-        Generate a random numeric string of a given length.
-        This method ensures that only digits (0-9) are used.
-        """
         return ''.join(random.choices('0123456789', k=length))
 
+    # Unique code generator
     def generate_unique_code(self, field_name, length=6):
-        """
-        Generate a unique numeric code for a specified field.
-        This method checks for existing codes to ensure uniqueness.
-        """
         code = self.generate_random_number(length)
         while Account.objects.filter(**{field_name: code}).exists():
             code = self.generate_random_number(length)
         return code
 
+    # Save method with auto-generation
     def save(self, *args, **kwargs):
-        # Ensure a unique account_id for new records or if it's missing.
         if not self.account_id:
             self.account_id = self.generate_random_number(6)
-        
-        # Automatically generate a username if it's blank.
+
         if not self.username:
             self.username = self.generate_username()
-        
-        # Auto-generate unique code fields if they are blank.
+
         if not self.cot_code:
             self.cot_code = self.generate_unique_code("cot_code")
         if not self.tax_code:
             self.tax_code = self.generate_unique_code("tax_code")
         if not self.imf_code:
             self.imf_code = self.generate_unique_code("imf_code")
-        
-        # Generate a 4-digit PIN for new registrations if not already set.
+
         if not self.pin:
             self.pin = self.generate_random_number(4)
-        
+
         super().save(*args, **kwargs)
+
 
 
 class AccountBalance(models.Model):

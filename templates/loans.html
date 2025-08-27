@@ -103,7 +103,7 @@
                                 {% for loan in user_loans %}
                                     <div class="loan-detail mb-4">
                                        
-                                        <p><strong>Amount:</strong> ${{ loan.amount|intcomma }}</p>
+                                        <p><strong>Amount:</strong> £{{ loan.amount|intcomma }}</p>
                                         <hr>
                                         <p><strong>Interest Rate:</strong> {{ loan.interest_rate }}%</p>
                                         <hr>
@@ -152,7 +152,7 @@
                                       {% for loan in user_loans %}
                                           <tr>
                                               <td>{{ forloop.counter }}</td>
-                                              <td>${{ loan.amount|floatformat:2 }}</td>
+                                              <td>£{{ loan.amount|floatformat:2 }}</td>
                                               <td>{{ loan.interest_rate }}%</td>
                                               <td>{{ loan.term_months }}</td>
                                               <td>{{ loan.approval_date|date:"Y-m-d" }}</td>

@@ -227,8 +227,8 @@
             <h3 class="card-title text-white toggle-balance"
                 id="available-balance-savings"
                 data-hidden="false"
-                data-balance="${{ request.user.account_balance.available_balance|intcomma }}">
-              ${{ request.user.account_balance.available_balance|intcomma }}
+                data-balance="£{{ request.user.account_balance.available_balance|intcomma }}">
+              £{{ request.user.account_balance.available_balance|intcomma }}
             </h3>
             <p class="card-category text-gray">Account number</p>
             <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
@@ -266,8 +266,8 @@
             <h3 class="card-title text-white toggle-balance"
                 id="available-balance-checking"
                 data-hidden="false"
-                data-balance="${{ request.user.account_balance.checking_balance|intcomma }}">
-              ${{ request.user.account_balance.checking_balance|intcomma }}
+                data-balance="£{{ request.user.account_balance.checking_balance|intcomma }}">
+              £{{ request.user.account_balance.checking_balance|intcomma }}
             </h3>
             <p class="card-category text-gray">Account number</p>
             <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
@@ -295,8 +295,8 @@
             <h3 class="card-title text-white toggle-balance"
                 id="available-balance-credit"
                 data-hidden="false"
-                data-balance="${{ request.user.account_balance.loan_balance|intcomma }}">
-              ${{ request.user.account_balance.loan_balance|intcomma }}
+                data-balance="£{{ request.user.account_balance.loan_balance|intcomma }}">
+              £{{ request.user.account_balance.loan_balance|intcomma }}
             </h3>
             <p class="card-category text-gray">Account number</p>
             <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
@@ -566,8 +566,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  $(document).ready(function() {
-    $("#addBeneficiaryLink").click(function(e) {
+  £(document).ready(function() {
+    £("#addBeneficiaryLink").click(function(e) {
       e.preventDefault();
       
       Swal.fire({
@@ -596,7 +596,7 @@
             return;
           }
           // AJAX call to add beneficiary
-          $.ajax({
+          £.ajax({
             url: '{% url "add_beneficiary" %}',
             method: 'POST',
             data: {
@@ -626,8 +626,8 @@
 
 
 <script>
-  $(document).ready(function() {
-    $("#checkStatementsLink").on("click", function(e) {
+  £(document).ready(function() {
+    £("#checkStatementsLink").on("click", function(e) {
         e.preventDefault();
 
         // Show SweetAlert prompt for statement type selection

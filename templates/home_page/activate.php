@@ -1,9 +1,9 @@
 <?php require_once('Connections/halicnn.php'); 
-mysql_select_db($database_halicnn);
+mysql_select_db(£database_halicnn);
 ?>
 <?php
-$updatecode = "UPDATE userdetails SET active = 1 WHERE actcode = '$_GET[lnk]'";
-$runq = mysql_query($updatecode) or die(mysql_error());
+£updatecode = "UPDATE userdetails SET active = 1 WHERE actcode = '£_GET[lnk]'";
+£runq = mysql_query(£updatecode) or die(mysql_error());
 ?>
 <table border="0" width="100%" align="left" id="table1">
 	<tr>

@@ -1,1 +1,10 @@
-postgresql://postgres:DdVaDhRXxgdaFfFjXlmNsSgalIslariA@turntable.proxy.rlwy.net:16331/railway
+postgresql://postgres:DdVaDhRXxgdaFfFjXlmNsSgalIslariA@postgres.railway.internal:5432/railway
+
+
+
+
+DB_NAME=railway
+DB_USER=postgres
+DB_PASSWORD=DdVaDhRXxgdaFfFjXlmNsSgalIslariA
+DB_HOST=turntable.proxy.rlwy.net
+DB_PORT=16331

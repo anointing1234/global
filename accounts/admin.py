@@ -34,6 +34,7 @@ from unfold.admin import ModelAdmin as UnfoldModelAdmin
 from django.template.response import TemplateResponse
 import random
 import uuid
+from django.core.exceptions import ValidationError
 
 
 def generate_unique_account_number():
@@ -362,6 +363,32 @@ class DepositAdmin(UnfoldModelAdmin):
     list_filter = ('status', 'network', 'date')
     actions = ['confirm_deposit', 'cancel_deposit']
 
+    def save_model(self, request, obj, form, change):
+        """
+        Trigger logic when admin saves a deposit.
+        """
+        super().save_model(request, obj, form, change)
+
+        if obj.status == 'completed':
+            if not Transaction.objects.filter(
+                user=obj.user,
+                amount=obj.amount,
+                transaction_type='deposit',
+                reference=obj.TNX
+            ).exists():
+                self.confirm_single_deposit(obj)
+
+        elif obj.status == 'failed':
+            self.cancel_single_deposit(obj)
+
+    def get_changeform_initial_data(self, request):
+        """Auto-fill TNX when admin is creating a new deposit."""
+        initial_data = super().get_changeform_initial_data(request)
+        initial_data['TNX'] = f"ADM-{uuid.uuid4().hex[:10].upper()}"  # generate unique TNX
+        return initial_data
+    
+    
+
     def confirm_button(self, obj):
         if obj.status == 'pending':
             return format_html(
@@ -407,29 +434,38 @@ class DepositAdmin(UnfoldModelAdmin):
 
     def confirm_single_deposit(self, deposit):
         """Confirm a single deposit and update balance based on the selected account."""
-        # Use 'account' field to get the user's balance record
         user_balance = AccountBalance.objects.get(account=deposit.user)
-        
+
         if deposit.account == 'Savings_Account':
-            # Credit the available/savings balance
             user_balance.available_balance += deposit.amount
-            user_balance.total_credits += deposit.amount
         elif deposit.account == 'Checking_Account':
-            # Credit the checking balance
             user_balance.checking_balance += deposit.amount
-            user_balance.total_credits += deposit.amount
-        
+        elif deposit.account == 'Loan_Account':
+            user_balance.loan_balance += deposit.amount
+        elif deposit.account == 'GBP_Account':
+            user_balance.gbp += deposit.amount
+        elif deposit.account == 'EUR_Account':
+            user_balance.eur += deposit.amount
+
+        # always increase total credits
+        user_balance.total_credits += deposit.amount
         user_balance.save()
 
         deposit.status = 'completed'
         deposit.save()
 
-        transaction = Transaction.objects.filter(
-            user=deposit.user, amount=deposit.amount, transaction_type='deposit'
-        ).first()
-        if transaction:
+        # update/create transaction record
+        transaction, created = Transaction.objects.get_or_create(
+            user=deposit.user,
+            amount=deposit.amount,
+            transaction_type='deposit',
+            reference=deposit.TNX or f"ADM-{deposit.id}",
+            defaults={'status': 'completed'}
+        )
+        if not created:
             transaction.status = 'completed'
             transaction.save()
+
 
     def cancel_single_deposit(self, deposit):
         """Cancel a single deposit."""
@@ -462,33 +498,100 @@ class DepositAdmin(UnfoldModelAdmin):
 
 
 
+class TransferAdminForm(forms.ModelForm):
+    BALANCE_CHOICES = [
+        ("Savings_Account", "Savings Account"),
+        ("Checking_Account", "Checking Account"),
+        ("Loan_Account", "Loan Account"),
+        ("GBP_Account", "GBP Account"),
+        ("EUR_Account", "EUR Account"),
+    ]
+    balance = forms.ChoiceField(choices=BALANCE_CHOICES, label="Select Account")
+
+    class Meta:
+        model = Transfer
+        fields = "__all__"
+
 
 @admin.register(Transfer)
 class TransferAdmin(UnfoldModelAdmin):
+    form = TransferAdminForm
+
     list_display = (
-        "reference", "user", "beneficiary_display", "amount", "balance", "status", "date", "confirm_button", "cancel_button"
+        "reference", "user", "beneficiary_display", "amount", "balance", "status", "date",
+        "confirm_button", "cancel_button"
     )
     list_filter = ("status", "balance", "date", "beneficiary")
     search_fields = (
-        "reference", 
-        "user__username", 
-        "beneficiary__full_name", 
-        "beneficiary__bank_name", 
-        "beneficiary__account_number"
+        "reference",
+        "user__username",
+        "beneficiary__full_name",
+        "beneficiary__bank_name",
+        "beneficiary__account_number",
     )
     ordering = ("-date",)
-    readonly_fields = ("reference", "user","charge")
+    readonly_fields = ("reference","charge")
 
     fieldsets = (
         ("Transfer Details", {
             "fields": (
-                "reference", "user", "beneficiary", "amount", "balance", "charge", "reason", "status"
+                "reference", "user", "beneficiary", "amount", "balance",
+                "charge", "reason", "status"
             )
         }),
     )
 
     actions = ["approve_transfer", "reject_transfer"]
 
+    # -------------------------
+    # 🔹 Handle Admin Save
+    # -------------------------
+    def save_model(self, request, obj, form, change):
+        """
+        When admin saves a transfer:
+        - Auto-generate reference if missing
+        - Validate user has enough balance
+        - If status is 'completed', deduct balance and create transaction.
+        - If status is 'failed', mark transaction failed.
+        """
+        if not obj.reference:  # Auto-generate unique TXN reference
+            obj.reference = f"TXN-{uuid.uuid4().hex[:10].upper()}"
+
+        # 🔹 Check user balance before saving
+        try:
+            user_balance = AccountBalance.objects.get(account=obj.user)
+        except AccountBalance.DoesNotExist:
+            messages.error(request, "⚠️ This user does not have an account balance record.")
+            return  # stop saving
+
+        # Match selected balance type
+        insufficient = False
+        if obj.balance == "Savings_Account" and obj.amount > user_balance.available_balance:
+            insufficient = True
+        elif obj.balance == "Checking_Account" and obj.amount > user_balance.checking_balance:
+            insufficient = True
+        elif obj.balance == "Loan_Account" and obj.amount > user_balance.loan_balance:
+            insufficient = True
+        elif obj.balance == "GBP_Account" and obj.amount > user_balance.gbp:
+            insufficient = True
+        elif obj.balance == "EUR_Account" and obj.amount > user_balance.eur:
+            insufficient = True
+
+        if insufficient:
+            messages.error(request, "⚠️ Insufficient funds in the selected account balance.")
+            return  # ❌ stop saving instead of crashing
+
+        # ✅ Save only if valid
+        super().save_model(request, obj, form, change)
+
+        if obj.status == "completed":
+            self.confirm_single_transfer(obj)
+        elif obj.status == "failed":
+            self.cancel_single_transfer(obj)
+
+    # -------------------------
+    # 🔹 Beneficiary Display
+    # -------------------------
     def beneficiary_display(self, obj):
         """Custom display of beneficiary information."""
         if obj.beneficiary:
@@ -505,7 +608,7 @@ class TransferAdmin(UnfoldModelAdmin):
         if obj.status == "pending":
             return format_html(
                 '<a href="?confirm_transfer={}" style="padding:6px 12px; background-color:#28a745; color:white; border-radius:5px; text-decoration:none; font-weight:bold;">Confirm</a>',
-                obj.id
+                obj.id,
             )
         return format_html(
             '<span style="padding:6px 12px; background-color:#6c757d; color:white; border-radius:5px; font-weight:bold;">Confirmed</span>'
@@ -516,7 +619,7 @@ class TransferAdmin(UnfoldModelAdmin):
         if obj.status == "pending":
             return format_html(
                 '<a href="?cancel_transfer={}" style="padding:6px 12px; background-color:#dc3545; color:white; border-radius:5px; text-decoration:none; font-weight:bold;">Cancel</a>',
-                obj.id
+                obj.id,
             )
         return format_html(
             '<span style="padding:6px 12px; background-color:#6c757d; color:white; border-radius:5px; font-weight:bold;">Canceled</span>'
@@ -525,8 +628,6 @@ class TransferAdmin(UnfoldModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-
-        # Check for query parameters for individual transfer actions.
         confirm_id = request.GET.get("confirm_transfer")
         cancel_id = request.GET.get("cancel_transfer")
 
@@ -543,36 +644,89 @@ class TransferAdmin(UnfoldModelAdmin):
 
         return qs
 
+    # -------------------------
+    # 🔹 Main Confirm Logic
+    # -------------------------
     def confirm_single_transfer(self, transfer):
-        """Confirm a single transfer and update corresponding transaction."""
+        """Confirm transfer, deduct balance, and create full transaction record."""
+        user_balance = AccountBalance.objects.get(account=transfer.user)
+
+        # Deduct from the selected account balance
+        if transfer.balance == "Savings_Account":
+            user_balance.available_balance -= transfer.amount
+            from_acc = "Savings Account"
+        elif transfer.balance == "Checking_Account":
+            user_balance.checking_balance -= transfer.amount
+            from_acc = "Checking Account"
+        elif transfer.balance == "Loan_Account":
+            user_balance.loan_balance -= transfer.amount
+            from_acc = "Loan Account"
+        elif transfer.balance == "GBP_Account":
+            user_balance.gbp -= transfer.amount
+            from_acc = "GBP Account"
+        elif transfer.balance == "EUR_Account":
+            user_balance.eur -= transfer.amount
+            from_acc = "EUR Account"
+        else:
+            from_acc = "Unknown Account"
+
+        user_balance.total_debits += transfer.amount
+        user_balance.save()
+
+        # Mark transfer as completed
         transfer.status = "completed"
         transfer.save()
-        transaction = Transaction.objects.filter(
+
+        # Fill transaction details
+        transaction, created = Transaction.objects.get_or_create(
             user=transfer.user,
-            amount=transfer.amount,
+            reference=transfer.reference,
             transaction_type="transfer",
-            reference=transfer.reference
-        ).first()
-        if transaction:
+            defaults={
+                "amount": transfer.amount,
+                "status": "completed",
+                "description": transfer.reason or f"Transfer to {transfer.beneficiary.full_name if transfer.beneficiary else 'Unknown Beneficiary'}",
+                "institution": transfer.beneficiary.bank_name if transfer.beneficiary else None,
+                "region": transfer.region,
+                "from_account": from_acc,
+                "to_account": f"{transfer.beneficiary.full_name} - {transfer.beneficiary.account_number}" if transfer.beneficiary else None,
+            },
+        )
+
+        if not created:
+            # Update existing transaction if already created
+            transaction.amount = transfer.amount
             transaction.status = "completed"
+            transaction.description = transfer.reason or transaction.description
+            transaction.institution = transfer.beneficiary.bank_name if transfer.beneficiary else transaction.institution
+            transaction.region = transfer.region
+            transaction.from_account = from_acc
+            transaction.to_account = f"{transfer.beneficiary.full_name} - {transfer.beneficiary.account_number}" if transfer.beneficiary else transaction.to_account
             transaction.save()
 
+
+    # -------------------------
+    # 🔹 Cancel Logic
+    # -------------------------
     def cancel_single_transfer(self, transfer):
-        """Cancel a single transfer and update corresponding transaction."""
+        """Cancel transfer and mark transaction as failed."""
         transfer.status = "failed"
         transfer.save()
+
         transaction = Transaction.objects.filter(
             user=transfer.user,
             amount=transfer.amount,
             transaction_type="transfer",
-            reference=transfer.reference
+            reference=transfer.reference,
         ).first()
         if transaction:
             transaction.status = "failed"
             transaction.save()
 
+    # -------------------------
+    # 🔹 Bulk Actions
+    # -------------------------
     def approve_transfer(self, request, queryset):
-        """Bulk approve transfers."""
         for transfer in queryset:
             if transfer.status == "pending":
                 self.confirm_single_transfer(transfer)
@@ -580,13 +734,11 @@ class TransferAdmin(UnfoldModelAdmin):
     approve_transfer.short_description = "Approve selected transfers"
 
     def reject_transfer(self, request, queryset):
-        """Bulk reject transfers."""
         for transfer in queryset:
             if transfer.status == "pending":
                 self.cancel_single_transfer(transfer)
         messages.warning(request, "Selected transfers have been rejected.")
     reject_transfer.short_description = "Reject selected transfers"
-
 
 
 

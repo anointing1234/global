@@ -541,6 +541,9 @@ class Transaction(models.Model):
 ACCOUNT_CHOICES = (
     ('Savings_Account', 'Savings Account'),
     ('Checking_Account', 'Checking Account'),
+    ('Loan_Account', 'Loan Account'),
+    ('GBP_Account', 'GBP Wallet'),
+    ('EUR_Account', 'EUR Wallet'),
 )
 
 class Deposit(models.Model):
@@ -684,7 +687,7 @@ class Transfer(models.Model):
         blank=True
     )
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    balance = models.CharField(max_length=10, default="USD")
+    balance = models.CharField(max_length=50, default="USD")
     reference = models.CharField(max_length=50, unique=True)
     date = models.DateTimeField(default=timezone.now)
     reason = models.TextField(blank=True, null=True)

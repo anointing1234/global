@@ -132,22 +132,22 @@
     
     
 
-<script>
+     <script>
   function handleLogin(event) {
-    event.preventDefault()
-  
+    event.preventDefault();
+
     // Show loading spinner
     Swal.fire({
       title: 'Logging in...',
       text: 'Please wait while we verify your details.',
       allowOutsideClick: false,
       didOpen: () => {
-        Swal.showLoading()
+        Swal.showLoading();
       }
-    })
-  
-    const formData = new FormData(document.getElementById('LoginForm'))
-  
+    });
+
+    const formData = new FormData(document.getElementById('LoginForm'));
+
     fetch("{% url 'login_Account' %}", {
       method: 'POST',
       body: formData,
@@ -158,7 +158,8 @@
     })
       .then((response) => response.json())
       .then((data) => {
-        Swal.close() // Close the loading message
+        Swal.close(); // Close the loading message
+
         if (data.success) {
           Swal.fire({
             icon: 'success',
@@ -166,17 +167,26 @@
             text: data.message || 'You have successfully logged in!',
             confirmButtonText: 'Okay'
           }).then(() => {
-            window.location.href = data.redirect_url
-          })
+            window.location.href = data.redirect_url;
+          });
         } else {
           Swal.fire({
             icon: 'error',
             title: 'Login failed',
-            text: data.message || 'Invalid Account_Id or password. Please try again.',
+            html: data.message || 'Invalid Account_Id or password. Please try again.', // ✅ use html instead of text
             confirmButtonText: 'Okay'
-          })
+          });
         }
       })
+      .catch((error) => {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong. Please try again later.',
+          confirmButtonText: 'Okay'
+        });
+      });
   }
 </script>
 

@@ -188,6 +188,15 @@
     <div class="page-inner">
       <!-- Balance Overview -->
       <div class="row">
+              <p class="card-category text-dark">Account Status:</p>
+<h5 class="card-title 
+           {% if request.user.status == 'active' %}text-success
+           {% elif request.user.status == 'inactive' %}text-warning
+           {% elif request.user.status == 'disabled' or request.user.status == 'blocked' %}text-danger
+           {% else %}text-white{% endif %}">
+  {{ request.user.status|title }}
+</h5>
+     
         <div class="col-sm-6 col-md-3 col-lg-4">
           <div class="card card-stats card-round">
             <div class="card-body">
@@ -377,17 +386,17 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const exchangeRates = {
-      eur_usd: {{ exchange_rates.eur_usd }},
-      gbp_usd: {{ exchange_rates.gbp_usd }},
-      eur_gbp: {{ exchange_rates.eur_gbp }}
+      eur_usd: {{ exchange_rates.eur_usd|default:0 }},
+      gbp_usd: {{ exchange_rates.gbp_usd|default:0 }},
+      eur_gbp: {{ exchange_rates.eur_gbp|default:0 }}
     };
-  
+
     const amountInput = document.querySelector(".swap-box input");
-    const fromCurrency = document.querySelector(".swap-box select:nth-child(2)");
+    const fromCurrency = document.querySelector(".swap-box select");
     const toCurrency = document.querySelectorAll(".swap-box select")[1];
     const swapButton = document.querySelector(".swap-button");
     const swapSlideButton = document.querySelector(".slide-button");
-  
+
     function getExchangeRate(from, to) {
       if (from === to) return 1;
       if (from === "EUR" && to === "USD") return exchangeRates.eur_usd;
@@ -398,36 +407,33 @@
       if (from === "GBP" && to === "EUR") return 1 / exchangeRates.eur_gbp;
       return 1;
     }
-  
+
     // Handle amount input change
     amountInput.addEventListener("input", function () {
       const amount = parseFloat(amountInput.value) || 0;
       const rate = getExchangeRate(fromCurrency.value, toCurrency.value);
       document.querySelectorAll(".swap-box input")[1].value = (amount * rate).toFixed(2);
     });
-  
-    // Swap button animation and currency swap (rotate effect)
-    swapButton.addEventListener("click", function () {
-      swapButton.classList.add("animate"); // Apply rotation effect
-  
+
+    // Swap button animation and currency swap
+    swapButton?.addEventListener("click", function () {
+      swapButton.classList.add("animate");
+
       setTimeout(() => {
-        // Swap currency selection
         [fromCurrency.value, toCurrency.value] = [toCurrency.value, fromCurrency.value];
-  
-        // Trigger conversion after swap
+
         const amount = parseFloat(amountInput.value) || 0;
         const rate = getExchangeRate(fromCurrency.value, toCurrency.value);
         document.querySelectorAll(".swap-box input")[1].value = (amount * rate).toFixed(2);
-  
-        swapButton.classList.remove("animate"); // Remove rotation effect
+
+        swapButton.classList.remove("animate");
       }, 500);
     });
-  
-    // Handle swap action with slide animation on the slide button
-    swapSlideButton.addEventListener("click", function () {
-      // Add slide animation class to the slide button
+
+    // Handle swap action
+    swapSlideButton?.addEventListener("click", function () {
       swapSlideButton.classList.add("animate");
-  
+
       setTimeout(() => {
         const amount = parseFloat(amountInput.value);
         if (isNaN(amount) || amount <= 0) {
@@ -435,7 +441,7 @@
           swapSlideButton.classList.remove("animate");
           return;
         }
-  
+
         fetch("{% url 'swap_currency' %}", {
           method: "POST",
           headers: {
@@ -455,13 +461,13 @@
           } else {
             Swal.fire("Error", data.message, "error");
           }
-          // Remove the slide animation class after processing
           swapSlideButton.classList.remove("animate");
         });
       }, 500);
     });
   });
 </script>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {

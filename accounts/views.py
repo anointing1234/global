@@ -160,26 +160,41 @@ def emails(request):
 
 
 
-
 def login_Account(request):
     if request.method == 'POST':
         login_form = LoginForm(request.POST)
         
         if login_form.is_valid():
-            account_id = login_form.cleaned_data.get('account_id')  # Get the account ID or email
+            account_id = login_form.cleaned_data.get('account_id')  # Can be email or account_id
             password = login_form.cleaned_data.get('password')
             dashboard_url = reverse('dashboard')
             
-            # Authenticate the user using the custom backend
+            # Authenticate the user
             user = authenticate(request, username=account_id, password=password)
-             
+            
             if user is not None:
-                auth_login(request, user)
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Login successful!',
-                    'redirect_url': dashboard_url
-                })
+                # ✅ Check account status before allowing login
+                if user.status == 'active':
+                    auth_login(request, user)
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Login successful!',
+                        'redirect_url': dashboard_url
+                    })
+                elif user.status == 'inactive':
+                    auth_login(request, user)
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Login successful!',
+                        'redirect_url': dashboard_url
+                    })
+                else:
+                    # If status is blocked or disabled
+                    return JsonResponse({
+                            'success': False,
+                            'message': 'Your account has been blocked or disabled. Please contact admin at <a href="mailto:info@globaltrustbc.com">info@globaltrustbc.com</a> for assistance.'
+                        })
+
             else:
                 return JsonResponse({
                     'success': False,

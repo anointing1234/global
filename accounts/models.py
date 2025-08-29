@@ -71,9 +71,11 @@ GENDER_CHOICES = (
 # Define choices for account status
 ACCOUNT_STATUS_CHOICES = (
     ('active', 'Active'),
+    ('inactive', 'Inactive'),
     ('disabled', 'Disabled'),
     ('blocked', 'Blocked'),
 )
+
 
 class Account(AbstractBaseUser, PermissionsMixin):
     """
@@ -144,7 +146,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     # Override is_active property -> controls login
     @property
     def is_active(self):
-        return self.status == 'active'
+        # Allow both active and inactive accounts to log in
+        return self.status in ['active', 'inactive']
+
 
     # Username generator
     def generate_username(self):

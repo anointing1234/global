@@ -36,6 +36,7 @@ import random
 import uuid
 from django.core.exceptions import ValidationError
 
+# forms.py or admin.py
 
 def generate_unique_account_number():
     """
@@ -47,8 +48,6 @@ def generate_unique_account_number():
             return acct_num
 
 
-
-# forms.py or admin.py (depending on where you keep it)
 class AccountCreationForm(forms.ModelForm):
     password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
     password2 = forms.CharField(label=_("Confirm Password"), widget=forms.PasswordInput)
@@ -113,12 +112,17 @@ class AccountAdmin(BaseUserAdmin, UnfoldModelAdmin):
     add_form = AccountCreationForm
 
     # Custom admin actions for status
-    actions = ['make_active', 'make_disabled', 'make_blocked']
+    actions = ['make_active', 'make_inactive', 'make_disabled', 'make_blocked']
 
     def make_active(self, request, queryset):
         queryset.update(status='active')
         self.message_user(request, "Selected accounts marked as Active")
     make_active.short_description = "Mark selected users as Active"
+
+    def make_inactive(self, request, queryset):
+        queryset.update(status='inactive')
+        self.message_user(request, "Selected accounts marked as Inactive")
+    make_inactive.short_description = "Mark selected users as Inactive"
 
     def make_disabled(self, request, queryset):
         queryset.update(status='disabled')

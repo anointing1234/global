@@ -82,6 +82,15 @@
     <div class="page-inner">
       <!-- Dashboard Cards -->
       <div class="row">
+
+        <p class="card-category text-dark">Account Status:</p>
+<h5 class="card-title 
+           {% if request.user.status == 'active' %}text-success
+           {% elif request.user.status == 'inactive' %}text-warning
+           {% elif request.user.status == 'disabled' or request.user.status == 'blocked' %}text-danger
+           {% else %}text-white{% endif %}">
+  {{ request.user.status|title }}
+</h5>
      
         <!-- Add other cards if needed -->
         <div class="col-sm-6 col-md-3 col-lg-4">
@@ -201,7 +210,16 @@
                   <input type="text" name="rate" id="rate" class="form-control" value="1.00" readonly>
                 </div>
                 <!-- Button with ID for AJAX click handler -->
-                <button
+
+
+                     {% if request.user.status == "inactive" %}
+                      <!-- Disabled Button -->
+                      <button style="background-color:gray; color:white;" type="button" class="btn w-100" disabled>
+                          Activate account to make a deposit
+                      </button>
+                  {% else %}
+                      <!-- Normal Submit Button -->
+                       <button
                   style="background-color:#1A2035; color:white;"
                   type="button"
                   class="btn w-100"
@@ -209,6 +227,8 @@
                 >
                   Deposit
                 </button>
+                  {% endif %}
+              
               </form>
 
 

@@ -200,7 +200,14 @@
     <div style="background-color:#1A2035;" class="page-inner ">
 
 
-
+<p class="card-category text-white">Account Status:</p>
+<h5 class="card-title 
+           {% if request.user.status == 'active' %}text-success
+           {% elif request.user.status == 'inactive' %}text-warning
+           {% elif request.user.status == 'disabled' or request.user.status == 'blocked' %}text-danger
+           {% else %}text-white{% endif %}">
+  {{ request.user.status|title }}
+</h5>
       
       <!-- Horizontal Scrollable Cards Section -->
       <div style=" background: linear-gradient(135deg, #000000, #001f3f, #000000)" class="outer-scroll rounded">
@@ -300,6 +307,8 @@
             </h3>
             <p class="card-category text-gray">Account number</p>
             <h3 class="card-title text-white">**********{{ request.user.account_number|slice:"-3:" }}</h3>
+            <!-- ✅ Account status -->
+
           </div>
         </div>
       </div>

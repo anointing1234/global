@@ -153,7 +153,14 @@
   <div class="container bg-dark">
     <div style="background-color:#1A2035;" class="page-inner ">
      
-      
+      <p class="card-category text-white">Account Status:</p>
+<h5 class="card-title 
+           {% if request.user.status == 'active' %}text-success
+           {% elif request.user.status == 'inactive' %}text-warning
+           {% elif request.user.status == 'disabled' or request.user.status == 'blocked' %}text-danger
+           {% else %}text-white{% endif %}">
+  {{ request.user.status|title }}
+</h5>
       <!-- Horizontal Scrollable Cards Section -->
       <div style=" background: linear-gradient(135deg, #000000, #001f3f, #000000)" class="outer-scroll rounded">
         <div class="scroll-container-horizontal">
@@ -341,10 +348,18 @@
                     {% csrf_token %}
                     {{ form.as_p }}
                 
-                    <!-- Submit Button -->
-                    <button style="background-color:#1A2035; color:white;" type="submit" class="btn w-100">
-                        Transfer Funds
-                    </button>
+                  {% if request.user.status == "inactive" %}
+                      <!-- Disabled Button -->
+                      <button style="background-color:gray; color:white;" type="button" class="btn w-100" disabled>
+                          Activate account to make a transfer
+                      </button>
+                  {% else %}
+                      <!-- Normal Submit Button -->
+                      <button style="background-color:#1A2035; color:white;" type="submit" class="btn w-100">
+                          Transfer Funds
+                      </button>
+                  {% endif %}
+
                 </form>
                 
                 
@@ -757,6 +772,9 @@
     });
   });
   </script>
+
+
+  
   
 
 

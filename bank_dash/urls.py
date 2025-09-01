@@ -24,7 +24,6 @@ from django.conf.urls import handler404, handler500
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('en/',include('dash.urls')),
     path('',include('dash.urls')),
     path('Accounts/',include('accounts.urls')),
     re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),

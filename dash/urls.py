@@ -1,13 +1,13 @@
-from django.urls import path,include,re_path
+from django.urls import path,re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
 from django.views.static import serve 
-from django.conf.urls import handler404, handler500
+
 
 
 urlpatterns = [
-    path('home/',views.home_page,name='home'),
+    path('',views.home_page,name='home'),
     path('dashboard/',views.home_view,name='dashboard'),
     path('contact_us/',views.contact_us,name='contact_us'),
     path('Branch_location/',views.Branch_location,name='Branch_location'),
@@ -38,8 +38,6 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
-# handler404 = views.custom_404_view
-# handler500 = views.custom_500_view
  
  
 

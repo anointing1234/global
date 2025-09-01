@@ -8,3 +8,12 @@ DB_USER=postgres
 DB_PASSWORD=DdVaDhRXxgdaFfFjXlmNsSgalIslariA
 DB_HOST=turntable.proxy.rlwy.net
 DB_PORT=16331
+
+
+
+
+DB_NAME=railway
+DB_USER=postgres
+DB_PASSWORD=DdVaDhRXxgdaFfFjXlmNsSgalIslariA
+DB_HOST=postgres.railway.internal
+DB_PORT=5432
